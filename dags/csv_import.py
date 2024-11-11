@@ -17,7 +17,7 @@ default_args = {
 dag = DAG(
     'import_csv_to_postgres',
     default_args=default_args,
-    description='A simple ETL DAG to import CSV data into Postgres',
+    description='A simple ETL DAG to import UM CSV data into Postgres',
     schedule_interval=None,
 )
 
