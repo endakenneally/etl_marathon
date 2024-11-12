@@ -1,7 +1,7 @@
 version: '3.9'
 
 services:
-  db:
+  postgres:
     image: postgres
     container_name: etl_db
     env_file:
@@ -20,16 +20,21 @@ services:
     container_name: etl_airflow
     environment:
     - AIRFLOW__CORE__EXECUTOR=LocalExecutor
-    - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql+psycopg2://${ETL_USER}:${ETL_PASSWORD}@etl_db:5432/etl_db
-    - AIRFLOW__WEBSERVER__SECRET_KEY={AIRFLOW_SECRET_KEY }
+    - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgres+psycopg2://${ETL_USER}:${ETL_PASSWORD}@postgres:5432/etl_db
+    - AIRFLOW__WEBSERVER__SECRET_KEY={AIRFLOW_SECRET_KEY}
+    - AIRFLOW__WEBSERVER__RBAC=True
+    - AIRFLOW__CORE__DAGS_FOLDER=/opt/airflow/dags
+    - AIRFLOW__API__AUTH_BACKEND=airflow.api.auth.backend.basic_auth
     depends_on:
-    - db
+    - postgres
     ports:
     - "8080:8080"
     volumes:
     - ./dags:/opt/airflow/dags
     - ./plugins:/opt/airflow/plugins
     - airflow_logs:/opt/airflow/logs
+    - ./dags:/opt/airflow/dags
+    - ./data:/opt/airflow/data
     command: >
       bash -c "airflow db init && airflow webserver & airflow scheduler"
 

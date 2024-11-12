@@ -40,7 +40,8 @@ def import_csv_to_postgres():
         f'postgresql+psycopg2://{conn.login}:{conn.password}@{conn.host}:{conn.port}/{conn.schema}')
 
     # Write the DataFrame to the table (create table if it does not exist)
-    df.to_sql('UM_DATA', con=engine, index=False, if_exists='replace')
+    df.head(10000).to_sql('UM_DATA', con=engine,
+                          index=False, if_exists='replace')
 
 
 # Define the task to import the CSV into the database
