@@ -1,0 +1,4 @@
+{
+    "csv_file_path":"/opt/airflow/data/TWO_CENTURIES_OF_UM_RACES.csv",
+    "db_table_name":"UM_DATA"
+}
