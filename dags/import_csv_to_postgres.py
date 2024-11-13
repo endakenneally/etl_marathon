@@ -1,10 +1,12 @@
+import json
+import pandas as pd
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 from airflow.providers.postgres.operators.postgres import PostgresOperator
 from airflow.hooks.base_hook import BaseHook
-import pandas as pd
 from sqlalchemy import create_engine
 from datetime import datetime
+
 
 # Define default_args
 default_args = {
@@ -29,19 +31,21 @@ def import_csv_to_postgres():
     postgres_conn_id = 'postgres_default'
     conn = BaseHook.get_connection(postgres_conn_id)
 
-    # CSV file path
-    csv_file_path = "/opt/airflow/data/TWO_CENTURIES_OF_UM_RACES.csv"
+    # get config file for tshis specific dag
+    dag_id = 'import_csv_to_postgres'
+    with open(f'/opt/airflow/configs/{dag_id}_config.json') as config_file:
+        config = json.load(config_file)
 
     # Load the CSV data into a DataFrame
-    df = pd.read_csv(csv_file_path)
+    df = pd.read_csv(config['csv_file_path'])
 
-    # Connect to PostgreSQL
+    # Connect to PostgsreSQL
     engine = create_engine(
         f'postgresql+psycopg2://{conn.login}:{conn.password}@{conn.host}:{conn.port}/{conn.schema}')
 
     # Write the DataFrame to the table (create table if it does not exist)
-    df.head(10000).to_sql('UM_DATA', con=engine,
-                          index=False, if_exists='replace')
+    df.to_sql(config['db_table_name'], con=engine,
+              index=False, if_exists='replace')
 
 
 # Define the task to import the CSV into the database
