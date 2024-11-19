@@ -36,16 +36,20 @@ def import_csv_to_postgres():
     with open(f'/opt/airflow/configs/{dag_id}_config.json') as config_file:
         config = json.load(config_file)
 
-    # Load the CSV data into a DataFrame
-    df = pd.read_csv(config['csv_file_path'])
+    # Split data into chunks for easier import into the database
+    chunksize = 100000
 
-    # Connect to PostgsreSQL
+    # Load the CSV data into a DataFrame
+    for chunk in pd.read_csv(config['csv_file_path'], chunksize=chunksize):
+        chunk.to_sql('UM_DATA', con=engine, index=False, if_exists='append')
+
+        # Connect to PostgsreSQL
     engine = create_engine(
         f'postgresql+psycopg2://{conn.login}:{conn.password}@{conn.host}:{conn.port}/{conn.schema}')
 
     # Write the DataFrame to the table (create table if it does not exist)
-    df.to_sql(config['db_table_name'], con=engine,
-              index=False, if_exists='replace')
+    df.head(200000).to_sql(config['db_table_name'], con=engine,
+                           index=False, if_exists='replace')
 
 
 # Define the task to import the CSV into the database
