@@ -39,6 +39,18 @@ services:
     command: >
       bash -c "airflow db init && airflow webserver & airflow scheduler"
 
+  flask-app:
+    image: python:3.9-slim  # Using the official Python image as the base image
+    ports:
+      - "5001:5000"
+    volumes:
+      - ./app:/app  # Mount your app folder to /app in the container
+    working_dir: /app  # Set the working directory inside the container
+    command: bash -c "pip install -r requirements.txt && flask run --host=0.0.0.0"  # Install dependencies and run Flask
+    environment:
+      - FLASK_APP=app.py
+      - FLASK_RUN_HOST=0.0.0.0
+
 volumes:
   pgdata:
   airflow_logs:
