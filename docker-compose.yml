@@ -35,7 +35,6 @@ services:
     - ./dags:/opt/airflow/dags
     - ./plugins:/opt/airflow/plugins
     - airflow_logs:/opt/airflow/logs
-    - ./dags:/opt/airflow/dags
     - ./data:/opt/airflow/data
     - ./configs:/opt/airflow/configs
     command: >
@@ -68,5 +67,4 @@ services:
       - JUPYTER_ENABLE_LAB=yes
 
 volumes:
-  pgdata:
   airflow_logs:
