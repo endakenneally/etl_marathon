@@ -1,6 +1,7 @@
 version: '3.9'
 
 services:
+  # Database Service Creation
   postgres:
     image: postgres
     container_name: etl_db
@@ -15,6 +16,7 @@ services:
       - POSTGRES_USER=${ETL_USER}
       - POSTGRES_DB=etl_db
 
+  # Airlfow Service Creation
   airflow:
     image: apache/airflow
     container_name: etl_airflow
@@ -39,17 +41,31 @@ services:
     command: >
       bash -c "airflow db init && airflow webserver & airflow scheduler"
 
+  # Flask App Creation for API
   flask-app:
-    image: python:3.9-slim  # Using the official Python image as the base image
+    container_name: etl_flask
+    image: python:3.9-slim 
     ports:
       - "5001:5000"
     volumes:
-      - ./app:/app  # Mount your app folder to /app in the container
-    working_dir: /app  # Set the working directory inside the container
-    command: bash -c "pip install -r requirements.txt && flask run --host=0.0.0.0"  # Install dependencies and run Flask
+      - ./app:/app  
+    working_dir: /app 
+    command: bash -c "pip install -r requirements.txt && flask run --host=0.0.0.0"  
     environment:
       - FLASK_APP=app.py
       - FLASK_RUN_HOST=0.0.0.0
+
+  # Jupyter Service for better dependency control
+  jupyter:
+    container_name: etl_jupyter
+    build:
+      context: ./jupyter
+    ports:
+      - "8888:8888"
+    volumes:
+      - ./jupyter/notebooks:/home/jovyan/work
+    environment:
+      - JUPYTER_ENABLE_LAB=yes
 
 volumes:
   pgdata:

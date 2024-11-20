@@ -46,7 +46,7 @@ def import_csv_to_postgres():
 
     # Load the CSV data into a DataFrame
     for chunk in pd.read_csv(config['csv_file_path'], chunksize=chunksize):
-        chunk.to_sql('um_data', con=engine, index=False,
+        chunk.to_sql(config['db_table_name'], con=engine, index=False,
                      if_exists='replace' if chunk_index == 1 else 'append')
         chunk_index += 1
 
