@@ -46,6 +46,10 @@ def import_csv_to_postgres():
 
     # Load the CSV data into a DataFrame
     for chunk in pd.read_csv(config['csv_file_path'], chunksize=chunksize):
+
+        # Add the country column using last 5 chars of event name field
+        chunk['Event country'] = chunk['Event name'].apply(
+            lambda x: x[-5:].strip().upper())
         chunk.to_sql(config['db_table_name'], con=engine, index=False,
                      if_exists='replace' if chunk_index == 1 else 'append')
         chunk_index += 1
