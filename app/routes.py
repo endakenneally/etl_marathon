@@ -32,12 +32,15 @@ def get_data():
         return jsonify({"error": str(e)}), 500
 
 
-@api_blueprint.route('/get_all_data', methods=['GET'])
-def get_all_data():
+@api_blueprint.route('/get_batch_data', methods=['GET'])
+def get_batch_data():
     try:
+        # Parameters
+        limit = request.args.get('limit', default=100, type=int)
+        offset = request.args.get('offset', default=0, type=int)
 
         # Query the database
-        query = f'SELECT * FROM public.um_data'
+        query = f'SELECT * FROM public.um_data LIMIT {limit} OFFSET {offset}'
 
         with engine.connect() as conn:
             df = pd.read_sql(query, conn.connection)
