@@ -33,6 +33,7 @@ services:
     - "8080:8080"
     volumes:
     - ./dags:/opt/airflow/dags
+    - ./scripts/sql:/opt/airflow/scripts
     - ./plugins:/opt/airflow/plugins
     - airflow_logs:/opt/airflow/logs
     - ./data:/opt/airflow/data

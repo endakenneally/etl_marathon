@@ -2,7 +2,6 @@ import json
 import pandas as pd
 from airflow import DAG
 from airflow.operators.python import PythonOperator
-from airflow.providers.postgres.operators.postgres import PostgresOperator
 from airflow.hooks.base_hook import BaseHook
 from sqlalchemy import create_engine
 from datetime import datetime
@@ -31,7 +30,7 @@ def import_csv_to_postgres():
     postgres_conn_id = 'postgres_default'
     conn = BaseHook.get_connection(postgres_conn_id)
 
-    # get config file for tshis specific dag
+    # get config file for this specific dag
     dag_id = 'import_csv_to_postgres'
     with open(f'/opt/airflow/configs/{dag_id}_config.json') as config_file:
         config = json.load(config_file)
