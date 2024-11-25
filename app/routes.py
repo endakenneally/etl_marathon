@@ -32,6 +32,24 @@ def get_data():
         return jsonify({"error": str(e)}), 500
 
 
+@api_blueprint.route('/get_all_data', methods=['GET'])
+def get_all_data():
+    try:
+
+        # Query the database
+        query = f'SELECT * FROM public.um_data'
+
+        with engine.connect() as conn:
+            df = pd.read_sql(query, conn.connection)
+
+        # Convert DataFrame to a list of dictionaries and return as JSON
+        return jsonify(df.to_dict(orient="records"))
+
+    except Exception as e:
+        # Catch any exceptions and return a meaningful error response
+        return jsonify({"error": str(e)}), 500
+
+
 @api_blueprint.route('/get_summary', methods=['GET'])
 def get_summary():
     try:
