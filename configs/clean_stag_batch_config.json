@@ -1,6 +1,7 @@
 {
     "api_path":"http://flask-app:5000/",
-    "endpoint":"get_batch_data",
+    "get_endpoint":"get_batch_data",
+    "save_endpoint":"add_cleaned_data",
     "limit":100000,
     "batch_size":100000
 }
