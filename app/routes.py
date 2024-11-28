@@ -53,7 +53,7 @@ def get_batch_data():
         return jsonify({"error": str(e)}), 500
 
 
-@api_blueprint.route('/get_summary', methods=['GET'])
+@api_blueprint.route('/get_count', methods=['GET'])
 def get_summary():
     try:
         # Query to get the total number of records
