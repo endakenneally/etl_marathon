@@ -9,6 +9,7 @@ api_blueprint = Blueprint('api', __name__)
 engine = create_engine(
     "postgresql+psycopg2://etl_user:etl_password@etl_db:5432/etl_db")
 
+
 # Define API routes
 
 
@@ -69,20 +70,3 @@ def get_summary():
     except Exception as e:
         # Catch any exceptions and return a meaningful error response
         return jsonify({"error": str(e)}), 500
-
-
-@api_blueprint.route('/add_cleaned_data', methods=['POST'])
-def add_cleaned_data():
-    try:
-        cleaned_data = request.get_json()
-
-        df = pd.DataFrame(cleaned_data)
-
-        # Execute the query using SQLAlchemy
-        with engine.connect() as conn:
-            df.to_sql('cleaned_data', conn, if_exists='append', index=False)
-
-        return jsonify({"message": "Cleaned data successfully added"}), 201
-    except Exception as e:
-        # Catch any exceptions and return a meaningful error response
-        return jsonify({"Failed to insert data : ": str(e)}), 500

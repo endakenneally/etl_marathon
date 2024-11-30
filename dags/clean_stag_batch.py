@@ -2,10 +2,9 @@ from airflow import DAG
 import json
 import requests
 import pandas as pd
-from airflow.operators.python import PythonOperator
 from airflow.decorators import task
-from airflow.models.xcom_arg import XComArg
-from airflow.utils.task_group import TaskGroup
+from airflow.hooks.base_hook import BaseHook
+from sqlalchemy import create_engine
 import logging
 
 logging.basicConfig(level=logging.INFO)
@@ -16,10 +15,20 @@ default_args = {
     'retries': 1
 }
 
+# Database connection parameters
+postgres_conn_id = 'postgres_default'
+conn = BaseHook.get_connection(postgres_conn_id)
+
+# Connect to PostgsreSQL
+engine = create_engine(
+    f'postgresql+psycopg2://{conn.login}:{conn.password}@{conn.host}:{conn.port}/{conn.schema}')
+
+
 # Load config file
 dag_id = 'clean_stag_batch'
 with open(f'/opt/airflow/configs/{dag_id}_config.json') as config_file:
     config = json.load(config_file)
+
 
 # Initialize the DAG
 with DAG(
@@ -39,7 +48,7 @@ with DAG(
         data = response.json()
 
         # return to next task in the sequence
-        return data
+        return json.dumps(data)
 
     @task
     def clean_data(batch_json):
@@ -52,17 +61,19 @@ with DAG(
         return df.to_json()
 
     @task
-    def save_to_new_table(cleaned_json):
-        # Saves data to new cleaned table by calling save data API
-        url = f"{config['api_path']}{config['save_endpoint']}"
-        headers = {'Content-Type': 'application/json'}
-        response = requests.post(
-            url, json=json.loads(cleaned_json), headers=headers)
+    def save_to_new_table(cleaned_jsons):
+        logging.info('RAN Save to New table')
+        # Data is passed in with all of the outputs of cleaned_data. Need to extract data from all of these
+        for cleaned_json in cleaned_jsons:
+            df = pd.read_json(cleaned_json)
+            df.to_sql(config['upload_table'], con=engine,
+                      index=False, if_exists='append', chunksize=10000)
+
         return
 
     @task
     def create_batches(batch_size):
-        # Get count of rows from the API
+        Get count of rows from the API
         url = f"{config['api_path']}{config['count_endpoint']}"
         response = requests.get(url)
         count = response.json()['total_records']
@@ -81,4 +92,4 @@ with DAG(
     batch_tasks = create_batches(config['batch_size'])
     batch_results = get_data.expand(batch_task=batch_tasks)
     cleaned_results = clean_data.expand(batch_json=batch_results)
-    save_to_new_table.expand(cleaned_json=cleaned_results)
+    save_task = save_to_new_table(cleaned_jsons=cleaned_results)
