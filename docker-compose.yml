@@ -32,14 +32,16 @@ services:
     ports:
     - "8080:8080"
     volumes:
-    - ./dags:/opt/airflow/dags
-    - ./scripts/sql:/opt/airflow/scripts
-    - ./plugins:/opt/airflow/plugins
+    - ./airflow/dags:/opt/airflow/dags
+    - ./airflow/scripts/sql:/opt/airflow/scripts
     - airflow_logs:/opt/airflow/logs
-    - ./data:/opt/airflow/data
-    - ./configs:/opt/airflow/configs
+    - ./airflow/data:/opt/airflow/data
+    - ./airflow/configs:/opt/airflow/configs
+    - ./airflow/dags/utils:/opt/airflow/dags/utils
     command: >
-      bash -c "airflow db init && airflow webserver & airflow scheduler"
+      bash -c "airflow db init && 
+      pip install pycountry &&
+      airflow webserver & airflow scheduler"
 
   # Flask App Creation for API
   flask-app:

@@ -70,3 +70,23 @@ def get_summary():
     except Exception as e:
         # Catch any exceptions and return a meaningful error response
         return jsonify({"error": str(e)}), 500
+
+
+@api_blueprint.route('/get_cleaned_data', methods=['GET'])
+def get_cleaned_data():
+    try:
+        # Parameters
+        limit = request.args.get('limit', default=100, type=int)
+
+        # Query the database
+        query = f'SELECT * FROM public.cleaned_data LIMIT {limit}'
+
+        with engine.connect() as conn:
+            df = pd.read_sql(query, conn.connection)
+
+        # Convert DataFrame to a list of dictionaries and return as JSON
+        return jsonify(df.to_dict(orient="records"))
+
+    except Exception as e:
+        # Catch any exceptions and return a meaningful error response
+        return jsonify({"error": str(e)}), 500

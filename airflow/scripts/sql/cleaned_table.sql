@@ -1,0 +1,20 @@
+create table cleaned_data (
+   year_of_event             varchar(50),
+   event_dates               varchar(50),
+   event_name                varchar(255),
+   event_distance_length     varchar(50),
+   event_number_of_finishers varchar(50),
+   event_country             varchar(10),
+   athlete_performance       varchar(50),
+   athlete_club              varchar(255),
+   athlete_country           varchar(5),
+   athlete_year_of_birth     varchar(50),
+   athlete_gender            varchar(50),
+   athlete_age_category      varchar(5),
+   athlete_average_speed     varchar(50),
+   athlete_id                varchar(50),
+   country_name              varchar(50),
+   event_type                varchar(50),
+   start_date                varchar(50),
+   end_date                  varchar(50)
+);
